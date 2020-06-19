@@ -10,8 +10,8 @@
   let polygons = [];
 
   // 奥行きを表現するための値
-  const cameraZ = 1500;
-  const screenZ = 1500;
+  const cameraZ = 1000;
+  const screenZ = 1000;
 
   window.addEventListener('load', () => {
     initialize();
@@ -43,6 +43,10 @@
       [4, 5, 6, 7]
     ];
 
+    for (let i = 0; i < points.length; i++) {
+      points[i] = points[i].rotateY(45 * Math.PI / 180);
+      points[i] = points[i].rotateX(Math.acos(1 / Math.sqrt(3)));
+    }
     render();
   }
 
