@@ -10,8 +10,8 @@
   let polygons = [];
 
   // 奥行きを表現するための値
-  const cameraZ = 500;
-  const screenZ = 500;
+  const cameraZ = 1500;
+  const screenZ = 1500;
 
   window.addEventListener('load', () => {
     initialize();
@@ -62,6 +62,7 @@
 
     // 辺の描画
     for (let i = 0; i < polygons.length; i++) {
+      context.beginPath();
       const indexes = polygons[i];
       for (let j = 0; j < indexes.length; j++) {
         const index = indexes[j];
@@ -72,9 +73,17 @@
         else context.lineTo(x, y);
       }
       // context.lineWidth = 1;
+      context.closePath();
       context.strokeStyle = 'white';
       context.stroke();
     }
+
+    // 回転処理
+    for (let i = 0; i < points.length; i++) {
+      points[i] = points[i].rotateY(1 * Math.PI / 180);
+    }
+
+    requestAnimationFrame(render);
   }
 
 })();
