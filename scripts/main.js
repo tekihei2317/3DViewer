@@ -8,6 +8,10 @@
   // 
   let points = [];
 
+  // 奥行きを表現するための値
+  const cameraZ = 500;
+  const screenZ = 500;
+
   window.addEventListener('load', () => {
     initialize();
   });
@@ -39,10 +43,11 @@
     context.fillStyle = 'white';
     for (let i = 0; i < points.length; i++) {
       const point = points[i];
-      context.fillRect(point.x + canvas.width / 2, point.y + canvas.height / 2, 2, 2);
+
+      const x = point.x / (point.z + cameraZ) * screenZ;
+      const y = -point.y / (point.z + cameraZ) * screenZ;
+      context.fillRect(x + canvas.width / 2, y + canvas.height / 2, 2, 2);
     }
   }
-
-
 
 })();
