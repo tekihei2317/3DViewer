@@ -66,8 +66,9 @@ class Polygon {
 class Cube {
   /**
    * @constructor
+   * @param {CanvasRenderingContext2D} context - 描画用のコンテキスト
    */
-  constructor() {
+  constructor(context) {
     const SIZE = 100;
     const point0 = new Vector3(SIZE, SIZE, SIZE);
     const point1 = new Vector3(-SIZE, SIZE, SIZE);
@@ -78,6 +79,7 @@ class Cube {
     const point6 = new Vector3(-SIZE, -SIZE, -SIZE);
     const point7 = new Vector3(SIZE, -SIZE, -SIZE);
 
+    this.context = context;
     this.points = [point0, point1, point2, point3, point4, point5, point6, point7];
     this.polygons = [
       new Polygon([0, 1, 2, 3]),
@@ -87,5 +89,46 @@ class Cube {
       new Polygon([3, 0, 4, 7]),
       new Polygon([4, 5, 6, 7])
     ];
+  }
+
+  /**
+   * 頂点を描画する
+   */
+  drawPoints() {
+    // 奥行きを表現するための値
+    const cameraZ = 1000;
+    const screenZ = 1000;
+
+    this.context.fillStyle = 'white';
+    for (const point of this.points) {
+      const x = point.x / (point.z + cameraZ) * screenZ + this.context.canvas.width / 2;
+      const y = -point.y / (point.z + cameraZ) * screenZ + this.context.canvas.height / 2;
+      this.context.fillRect(x - 3, y - 3, 6, 6);
+    }
+  }
+
+  /**
+   * 面を描画する
+   */
+  drawPolygons() {
+    // 奥行きを表現するための値
+    const cameraZ = 1000;
+    const screenZ = 1000;
+
+    for (const polygon of this.polygons) {
+      this.context.beginPath();
+      let first = true;
+      for (const index of polygon.indexes) {
+        const point = this.points[index];
+        const x = point.x / (point.z + cameraZ) * screenZ + this.context.canvas.width / 2;
+        const y = -point.y / (point.z + cameraZ) * screenZ + this.context.canvas.height / 2;
+
+        if (first) this.context.moveTo(x, y), first = false;
+        else this.context.lineTo(x, y);
+      }
+      this.context.closePath();
+      this.context.strokeStyle = 'white';
+      this.context.stroke();
+    }
   }
 }
