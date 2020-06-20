@@ -11,6 +11,29 @@ class Vector3 {
     this.y = y;
     this.z = z;
   }
+  add(vec) {
+    return new Vector3(this.x + vec.x, this.y + vec.y, this.z + vec.z);
+  }
+  sub(vec) {
+    return new Vector3(this.x - vec.x, this.y - vec.y, this.z - vec.z);
+  }
+  mul(k) {
+    return new Vector3(this.x * k, this.y * k, this.z * k);
+  }
+  cross(vec) {
+    return new Vector3(
+      this.y * vec.z - this.z * vec.y,
+      this.z * vec.x - this.x * vec.z,
+      this.x * vec.y - this.y * vec.x
+    );
+  }
+  norm() {
+    return Math.hypot(this.x, this.y, this.z);
+  }
+  normalize() {
+    console.assert(this.norm() !== 0, 'zero division occured!');
+    return this.mul(1 / this.norm());
+  }
   /**
    * x軸回りに回転する(時計回り...?)
    * @param {number} theta - 回転する角度(ラジアン)
@@ -48,6 +71,12 @@ class Vector3 {
     const z = A[2][0] * this.x + A[2][1] * this.y + A[2][2] * this.z;
     return new Vector3(x, y, z);
   }
+  /**
+   * 成分を表示する(デバッグ用)
+   */
+  print() {
+    console.log(`(${this.x}, ${this.y}, ${this.z})`);
+  }
 }
 
 //　面の頂点のインデックスを持つクラス
@@ -59,6 +88,7 @@ class Polygon {
   constructor(indexes) {
     this.indexes = indexes;
     this.centerZ = 0;
+    this.normalVector = null;
   }
 }
 
@@ -83,11 +113,11 @@ class Cube {
     this.points = [point0, point1, point2, point3, point4, point5, point6, point7];
     this.polygons = [
       new Polygon([0, 1, 2, 3]),
-      new Polygon([0, 1, 5, 4]),
-      new Polygon([1, 2, 6, 5]),
-      new Polygon([2, 3, 7, 6]),
-      new Polygon([3, 0, 4, 7]),
-      new Polygon([4, 5, 6, 7])
+      new Polygon([0, 4, 5, 1]),
+      new Polygon([1, 5, 6, 2]),
+      new Polygon([2, 6, 7, 3]),
+      new Polygon([3, 7, 4, 0]),
+      new Polygon([4, 7, 6, 5])
     ];
   }
 
@@ -130,9 +160,11 @@ class Cube {
         if (first) this.context.moveTo(x, y), first = false;
         else this.context.lineTo(x, y);
       }
+      // 辺の描画
       this.context.closePath();
       this.context.strokeStyle = 'black';
       this.context.stroke();
+      // 面の描画
       this.context.fillStyle = 'white';
       this.context.fill();
     }
@@ -153,6 +185,19 @@ class Cube {
     // 中心のz座標の大きい順番にソートする
     this.polygons.sort((a, b) => {
       return b.centerZ - a.centerZ;
+    });
+
+    // 法線ベクトルを求める
+    this.polygons.forEach((polygon) => {
+      const p0 = this.points[polygon.indexes[0]];
+      const p1 = this.points[polygon.indexes[1]];
+      const p2 = this.points[polygon.indexes[2]];
+
+      p0.print();
+      p1.print();
+      p2.print();
+      const normalVector = p1.sub(p0).cross(p2.sub(p1)).normalize().mul(100);
+      normalVector.print();
     });
   }
 

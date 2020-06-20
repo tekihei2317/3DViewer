@@ -21,8 +21,9 @@
     cube = new Cube(context);
 
     // 立体対角線がy軸に並行になるように回転
-    cube.rotateY(45 * Math.PI / 180);
-    cube.rotateX(Math.acos(1 / Math.sqrt(3)));
+    // cube.rotateY(45 * Math.PI / 180);
+    // cube.rotateX(-20 * Math.PI / 180);
+    // cube.rotateX(Math.acos(1 / Math.sqrt(3)));
 
     render();
   }
