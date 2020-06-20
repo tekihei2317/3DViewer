@@ -20,6 +20,9 @@ class Vector3 {
   mul(k) {
     return new Vector3(this.x * k, this.y * k, this.z * k);
   }
+  dot(vec) {
+    return this.x * vec.x + this.y * vec.y + this.z * vec.z;
+  }
   cross(vec) {
     return new Vector3(
       this.y * vec.z - this.z * vec.y,
@@ -89,6 +92,7 @@ class Polygon {
     this.indexes = indexes;
     this.centerZ = 0;
     this.normalVector = null;
+    this.color = 'white';
   }
 }
 
@@ -119,6 +123,10 @@ class Cube {
       new Polygon([3, 7, 4, 0]),
       new Polygon([4, 7, 6, 5])
     ];
+
+    // 光源の向きを表す単位ベクトル
+    this.light = new Vector3(1, -1, 1).normalize();
+    // this.light = new Vector3(0, -1, 0);
   }
 
   /**
@@ -147,7 +155,7 @@ class Cube {
 
     // 面の描画の前処理
     this.prepare();
-    for (const polygon of this.polygons) console.log(polygon.centerZ);
+    // for (const polygon of this.polygons) console.log(polygon.centerZ);
 
     for (const polygon of this.polygons) {
       this.context.beginPath();
@@ -165,7 +173,7 @@ class Cube {
       this.context.strokeStyle = 'black';
       this.context.stroke();
       // 面の描画
-      this.context.fillStyle = 'white';
+      this.context.fillStyle = polygon.color;
       this.context.fill();
     }
   }
@@ -193,11 +201,11 @@ class Cube {
       const p1 = this.points[polygon.indexes[1]];
       const p2 = this.points[polygon.indexes[2]];
 
-      p0.print();
-      p1.print();
-      p2.print();
+      // p0.print();
+      // p1.print();
+      // p2.print();
       const normalVector = p1.sub(p0).cross(p2.sub(p1)).normalize().mul(100);
-      normalVector.print();
+      // normalVector.print();
 
       const center = new Vector3(
         polygon.indexes.reduce((acc, idx) => acc + this.points[idx].x, 0) / polygon.indexes.length,
@@ -211,8 +219,19 @@ class Cube {
       this.context.beginPath();
       this.context.moveTo(x1, y1);
       this.context.lineTo(x2, y2);
-      this.context.strokeStyle = 'orange';
-      this.context.stroke();
+      // this.context.strokeStyle = 'orange';
+      // this.context.stroke();
+
+      const normalUnitVector = normalVector.normalize();
+      const cos = normalUnitVector.dot(this.light);
+      const color = this.calcColor(cos);
+
+      // console.log(cos);
+      // console.log(color);
+
+      // this.context.strokeStyle = color;
+      // this.context.stroke();
+      polygon.color = color;
     });
   }
 
@@ -223,6 +242,15 @@ class Cube {
       x / (z + cameraZ) * screenZ + this.context.canvas.width / 2,
       -y / (z + cameraZ) * screenZ + this.context.canvas.height / 2
     ];
+  }
+
+  /**
+   * 面の明るさを計算する
+   * @param {number} cos - 光源と法線ベクトルの成す角の余弦
+   */
+  calcColor(cos) {
+    const b = 120 + 120 * (-1) * cos;
+    return `rgba(${b}, ${b}, ${b})`;
   }
 
   /**

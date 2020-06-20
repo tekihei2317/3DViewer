@@ -21,9 +21,8 @@
     cube = new Cube(context);
 
     // 立体対角線がy軸に並行になるように回転
-    // cube.rotateY(45 * Math.PI / 180);
-    // cube.rotateX(-20 * Math.PI / 180);
-    // cube.rotateX(Math.acos(1 / Math.sqrt(3)));
+    cube.rotateY(45 * Math.PI / 180);
+    cube.rotateX(Math.acos(1 / Math.sqrt(3)));
 
     render();
   }
@@ -33,12 +32,12 @@
     context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     // 描画処理
-    cube.drawPoints();
+    // cube.drawPoints();
     cube.drawPolygons();
 
     // 回転処理
     cube.rotateY(1 * Math.PI / 180);
 
-    // requestAnimationFrame(render);
+    requestAnimationFrame(render);
   }
 })();
