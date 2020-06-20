@@ -49,3 +49,14 @@ class Vector3 {
     return new Vector3(x, y, z);
   }
 }
+
+//　多角形(面)を扱うクラス
+class Polygon {
+  /**
+   * @constructor
+   * @param {Array<number>} indexes - 頂点のインデックスの配列
+   */
+  constructor(indexes) {
+    this.indexes = indexes;
+  }
+}

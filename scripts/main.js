@@ -35,17 +35,17 @@
 
     points = [point0, point1, point2, point3, point4, point5, point6, point7];
     polygons = [
-      [0, 1, 2, 3],
-      [0, 1, 5, 4],
-      [1, 2, 6, 5],
-      [2, 3, 7, 6],
-      [3, 0, 4, 7],
-      [4, 5, 6, 7]
+      new Polygon([0, 1, 2, 3]),
+      new Polygon([0, 1, 5, 4]),
+      new Polygon([1, 2, 6, 5]),
+      new Polygon([2, 3, 7, 6]),
+      new Polygon([3, 0, 4, 7]),
+      new Polygon([4, 5, 6, 7])
     ];
 
     for (let i = 0; i < points.length; i++) {
-      points[i] = points[i].rotateY(45 * Math.PI / 180);
-      points[i] = points[i].rotateX(Math.acos(1 / Math.sqrt(3)));
+      points[i] = points[i].rotateY(120 * Math.PI / 180);
+      // points[i] = points[i].rotateX(Math.acos(1 / Math.sqrt(3)));
     }
     render();
   }
@@ -65,29 +65,29 @@
     }
 
     // 辺の描画
-    for (let i = 0; i < polygons.length; i++) {
+    for (const polygon of polygons) {
       context.beginPath();
-      const indexes = polygons[i];
-      for (let j = 0; j < indexes.length; j++) {
-        const index = indexes[j];
-        const point = points[index];
+      const indexes = polygon.indexes;
+      let first = false;
+      for (const i of indexes) {
+        const point = points[i];
         const x = point.x / (point.z + cameraZ) * screenZ + canvas.width / 2;
         const y = -point.y / (point.z + cameraZ) * screenZ + canvas.height / 2;
-        if (j === 0) context.moveTo(x, y);
+        if (first === true) context.moveTo(x, y), first = false;
         else context.lineTo(x, y);
       }
       // context.lineWidth = 1;
       context.closePath();
-      context.strokeStyle = 'white';
+      context.strokeStyle = 'black';
       context.stroke();
+      context.fillStyle = 'white';
+      context.fill();
     }
 
     // 回転処理
     for (let i = 0; i < points.length; i++) {
       points[i] = points[i].rotateY(1 * Math.PI / 180);
     }
-
-    requestAnimationFrame(render);
+    // requestAnimationFrame(render);
   }
-
 })();
