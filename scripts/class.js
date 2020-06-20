@@ -11,6 +11,8 @@ class Vector3 {
     this.y = y;
     this.z = z;
   }
+
+  // 基本演算
   add(vec) {
     return new Vector3(this.x + vec.x, this.y + vec.y, this.z + vec.z);
   }
@@ -30,6 +32,8 @@ class Vector3 {
       this.x * vec.y - this.y * vec.x
     );
   }
+
+  // 大きさに関する演算
   norm() {
     return Math.hypot(this.x, this.y, this.z);
   }
@@ -37,6 +41,7 @@ class Vector3 {
     console.assert(this.norm() !== 0, 'zero division occured!');
     return this.mul(1 / this.norm());
   }
+
   /**
    * x軸回りに回転する(時計回り...?)
    * @param {number} theta - 回転する角度(ラジアン)
@@ -95,6 +100,29 @@ class Polygon {
     // 使ってない
     this.normalVector = null;
   }
+
+  /**
+   * 面を描画する
+   * @param {CanvasRenderingContext2D} - 描画用のコンテキスト
+   * @param {Array<Vector3>} points - 点の集合
+   */
+  draw(context, points) {
+    context.beginPath();
+
+    let first = true;
+    this.indexes.forEach((i) => {
+      const point = points[i];
+      const [x, y] = adjust(point.x, point.y, point.z);
+      if (first === true) context.moveTo(x, y), first = false;
+      else context.lineTo(x, y);
+    });
+
+    context.closePath();
+    context.strokeStyle = 'black';
+    context.stroke();
+    context.fillStyle = this.color;
+    context.fill();
+  }
 }
 
 // 図形(とりあえず立方体)を扱うクラス
@@ -148,6 +176,7 @@ class Cube {
     this.prepare();
 
     // 面の描画処理
+    /*
     for (const polygon of this.polygons) {
       this.context.beginPath();
       let first = true;
@@ -165,6 +194,11 @@ class Cube {
       // 面の描画
       this.context.fillStyle = polygon.color;
       this.context.fill();
+    }
+    */
+
+    for (const polygon of this.polygons) {
+      polygon.draw(this.context, this.points);
     }
   }
 
@@ -237,4 +271,15 @@ class Cube {
   rotateY(theta) {
     this.points = this.points.map(point => point.rotateY(theta));
   }
+}
+
+const CANVAS_WIDTH = 600;
+const CANVAS_HEIGHT = 600;
+function adjust(x, y, z) {
+  const cameraZ = 1000;
+  const screenZ = 1000;
+  return [
+    x / (z + cameraZ) * screenZ + CANVAS_WIDTH / 2,
+    -y / (z + cameraZ) * screenZ + CANVAS_HEIGHT / 2
+  ];
 }

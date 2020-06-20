@@ -32,7 +32,7 @@
     context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     // 描画処理
-    cube.drawPoints();
+    // cube.drawPoints();
     cube.drawPolygons();
 
     // 回転処理
