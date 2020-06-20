@@ -50,7 +50,7 @@ class Vector3 {
   }
 }
 
-//　多角形(面)を扱うクラス
+//　多角形の頂点のインデックスの集合を持つクラス
 class Polygon {
   /**
    * @constructor
@@ -58,5 +58,34 @@ class Polygon {
    */
   constructor(indexes) {
     this.indexes = indexes;
+    this.centerZ = 0;
+  }
+}
+
+// 図形(とりあえず立方体)を扱うクラス
+class Cube {
+  /**
+   * @constructor
+   */
+  constructor() {
+    const SIZE = 100;
+    const point0 = new Vector3(SIZE, SIZE, SIZE);
+    const point1 = new Vector3(-SIZE, SIZE, SIZE);
+    const point2 = new Vector3(-SIZE, -SIZE, SIZE);
+    const point3 = new Vector3(SIZE, -SIZE, SIZE);
+    const point4 = new Vector3(SIZE, SIZE, -SIZE);
+    const point5 = new Vector3(-SIZE, SIZE, -SIZE);
+    const point6 = new Vector3(-SIZE, -SIZE, -SIZE);
+    const point7 = new Vector3(SIZE, -SIZE, -SIZE);
+
+    this.points = [point0, point1, point2, point3, point4, point5, point6, point7];
+    this.polygons = [
+      new Polygon([0, 1, 2, 3]),
+      new Polygon([0, 1, 5, 4]),
+      new Polygon([1, 2, 6, 5]),
+      new Polygon([2, 3, 7, 6]),
+      new Polygon([3, 0, 4, 7]),
+      new Polygon([4, 5, 6, 7])
+    ];
   }
 }

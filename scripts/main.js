@@ -6,8 +6,7 @@
   let context = null;
 
   // 図形の情報
-  let points = [];
-  let polygons = [];
+  let cube = null;
 
   // 奥行きを表現するための値
   const cameraZ = 1000;
@@ -23,30 +22,7 @@
     canvas.width = CANVAS_WIDTH;
     canvas.height = CANVAS_HEIGHT;
 
-    const SIZE = 100;
-    const point0 = new Vector3(SIZE, SIZE, SIZE);
-    const point1 = new Vector3(-SIZE, SIZE, SIZE);
-    const point2 = new Vector3(-SIZE, -SIZE, SIZE);
-    const point3 = new Vector3(SIZE, -SIZE, SIZE);
-    const point4 = new Vector3(SIZE, SIZE, -SIZE);
-    const point5 = new Vector3(-SIZE, SIZE, -SIZE);
-    const point6 = new Vector3(-SIZE, -SIZE, -SIZE);
-    const point7 = new Vector3(SIZE, -SIZE, -SIZE);
-
-    points = [point0, point1, point2, point3, point4, point5, point6, point7];
-    polygons = [
-      new Polygon([0, 1, 2, 3]),
-      new Polygon([0, 1, 5, 4]),
-      new Polygon([1, 2, 6, 5]),
-      new Polygon([2, 3, 7, 6]),
-      new Polygon([3, 0, 4, 7]),
-      new Polygon([4, 5, 6, 7])
-    ];
-
-    for (let i = 0; i < points.length; i++) {
-      points[i] = points[i].rotateY(120 * Math.PI / 180);
-      // points[i] = points[i].rotateX(Math.acos(1 / Math.sqrt(3)));
-    }
+    cube = new Cube();
     render();
   }
 
@@ -56,8 +32,8 @@
 
     // 点の描画
     context.fillStyle = 'white';
-    for (let i = 0; i < points.length; i++) {
-      const point = points[i];
+    for (let i = 0; i < cube.points.length; i++) {
+      const point = cube.points[i];
 
       const x = point.x / (point.z + cameraZ) * screenZ + canvas.width / 2;
       const y = -point.y / (point.z + cameraZ) * screenZ + canvas.height / 2;
@@ -65,12 +41,12 @@
     }
 
     // 辺の描画
-    for (const polygon of polygons) {
+    for (const polygon of cube.polygons) {
       context.beginPath();
       const indexes = polygon.indexes;
       let first = false;
       for (const i of indexes) {
-        const point = points[i];
+        const point = cube.points[i];
         const x = point.x / (point.z + cameraZ) * screenZ + canvas.width / 2;
         const y = -point.y / (point.z + cameraZ) * screenZ + canvas.height / 2;
         if (first === true) context.moveTo(x, y), first = false;
@@ -78,16 +54,14 @@
       }
       // context.lineWidth = 1;
       context.closePath();
-      context.strokeStyle = 'black';
+      context.strokeStyle = 'white';
       context.stroke();
-      context.fillStyle = 'white';
-      context.fill();
     }
 
     // 回転処理
-    for (let i = 0; i < points.length; i++) {
-      points[i] = points[i].rotateY(1 * Math.PI / 180);
+    for (let i = 0; i < cube.points.length; i++) {
+      cube.points[i] = cube.points[i].rotateY(1 * Math.PI / 180);
     }
-    // requestAnimationFrame(render);
+    requestAnimationFrame(render);
   }
 })();
