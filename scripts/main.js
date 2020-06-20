@@ -20,13 +20,15 @@
     canvas.height = CANVAS_HEIGHT;
 
     cube = new Cube(context);
+    // 立体対角線がy軸に並行になるように回転
+    cube.rotateY(45 * Math.PI / 180);
+    cube.rotateX(Math.acos(1 / Math.sqrt(3)));
     render();
   }
 
   function render() {
     context.fillStyle = 'black';
     context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
     // 点の描画
     cube.drawPoints();
 
@@ -34,9 +36,8 @@
     cube.drawPolygons();
 
     // 回転処理
-    for (let i = 0; i < cube.points.length; i++) {
-      cube.points[i] = cube.points[i].rotateY(1 * Math.PI / 180);
-    }
+    cube.rotateY(1 * Math.PI / 180);
+
     requestAnimationFrame(render);
   }
 })();

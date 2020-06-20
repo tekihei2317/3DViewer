@@ -50,7 +50,7 @@ class Vector3 {
   }
 }
 
-//　多角形の頂点のインデックスの集合を持つクラス
+//　面の頂点のインデックスを持つクラス
 class Polygon {
   /**
    * @constructor
@@ -130,5 +130,20 @@ class Cube {
       this.context.strokeStyle = 'white';
       this.context.stroke();
     }
+  }
+
+  /**
+   * x軸回りに回転する
+   * @param {number} theta - 回転する角度(ラジアン)
+   */
+  rotateX(theta) {
+    this.points = this.points.map(point => point.rotateX(theta));
+  }
+  /**
+   * y軸回りに回転する
+   * @param {number} theta - 回転する角度(ラジアン)
+   */
+  rotateY(theta) {
+    this.points = this.points.map(point => point.rotateY(theta));
   }
 }
