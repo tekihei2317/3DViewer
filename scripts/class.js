@@ -90,10 +90,10 @@ class Polygon {
    */
   constructor(indexes) {
     this.indexes = indexes;
-    this.centerZ = 0;
     this.center = null;
-    this.normalVector = null;
     this.color = 'white';
+    // 使ってない
+    this.normalVector = null;
   }
 }
 
@@ -146,7 +146,6 @@ class Cube {
   drawPolygons() {
     // 面の描画の前処理
     this.prepare();
-    // for (const polygon of this.polygons) console.log(polygon.centerZ);
 
     // 面の描画処理
     for (const polygon of this.polygons) {
@@ -187,42 +186,15 @@ class Cube {
       return b.center.z - a.center.z;
     });
 
-    // 法線ベクトルを求める
+    // 法線ベクトルと面の色を求める
     this.polygons.forEach((polygon) => {
       const p0 = this.points[polygon.indexes[0]];
       const p1 = this.points[polygon.indexes[1]];
       const p2 = this.points[polygon.indexes[2]];
 
-      // p0.print();
-      // p1.print();
-      // p2.print();
-      const normalVector = p1.sub(p0).cross(p2.sub(p1)).normalize().mul(100);
-      // normalVector.print();
-
-      const center = new Vector3(
-        polygon.indexes.reduce((acc, idx) => acc + this.points[idx].x, 0) / polygon.indexes.length,
-        polygon.indexes.reduce((acc, idx) => acc + this.points[idx].y, 0) / polygon.indexes.length,
-        polygon.indexes.reduce((acc, idx) => acc + this.points[idx].z, 0) / polygon.indexes.length
-      );
-      const endPoint = center.add(normalVector);
-      // 法線ベクトルを描画する
-      const [x1, y1] = this.adjust(center.x, center.y, center.z);
-      const [x2, y2] = this.adjust(endPoint.x, endPoint.y, endPoint.z);
-      this.context.beginPath();
-      this.context.moveTo(x1, y1);
-      this.context.lineTo(x2, y2);
-      // this.context.strokeStyle = 'orange';
-      // this.context.stroke();
-
-      const normalUnitVector = normalVector.normalize();
-      const cos = normalUnitVector.dot(this.light);
+      const normalVector = p1.sub(p0).cross(p2.sub(p1)).normalize();
+      const cos = normalVector.dot(this.light);
       const color = this.calcColor(cos);
-
-      // console.log(cos);
-      // console.log(color);
-
-      // this.context.strokeStyle = color;
-      // this.context.stroke();
       polygon.color = color;
     });
   }
