@@ -91,6 +91,7 @@ class Polygon {
   constructor(indexes) {
     this.indexes = indexes;
     this.centerZ = 0;
+    this.center = null;
     this.normalVector = null;
     this.color = 'white';
   }
@@ -126,21 +127,15 @@ class Cube {
 
     // 光源の向きを表す単位ベクトル
     this.light = new Vector3(1, -1, 1).normalize();
-    // this.light = new Vector3(0, -1, 0);
   }
 
   /**
    * 頂点を描画する
    */
   drawPoints() {
-    // 奥行きを表現するための値
-    const cameraZ = 1000;
-    const screenZ = 1000;
-
     this.context.fillStyle = 'gray';
     for (const point of this.points) {
-      const x = point.x / (point.z + cameraZ) * screenZ + this.context.canvas.width / 2;
-      const y = -point.y / (point.z + cameraZ) * screenZ + this.context.canvas.height / 2;
+      const [x, y] = this.adjust(point.x, point.y, point.z);
       this.context.fillRect(x - 3, y - 3, 6, 6);
     }
   }
@@ -149,21 +144,17 @@ class Cube {
    * 面を描画する
    */
   drawPolygons() {
-    // 奥行きを表現するための値
-    const cameraZ = 1000;
-    const screenZ = 1000;
-
     // 面の描画の前処理
     this.prepare();
     // for (const polygon of this.polygons) console.log(polygon.centerZ);
 
+    // 面の描画処理
     for (const polygon of this.polygons) {
       this.context.beginPath();
       let first = true;
       for (const index of polygon.indexes) {
         const point = this.points[index];
-        const x = point.x / (point.z + cameraZ) * screenZ + this.context.canvas.width / 2;
-        const y = -point.y / (point.z + cameraZ) * screenZ + this.context.canvas.height / 2;
+        const [x, y] = this.adjust(point.x, point.y, point.z);
 
         if (first) this.context.moveTo(x, y), first = false;
         else this.context.lineTo(x, y);
@@ -182,17 +173,18 @@ class Cube {
    * 面の描画の準備をする
    */
   prepare() {
-    // 中心のz座標を計算する
+    // 中心座標を計算する
     this.polygons.forEach((polygon) => {
-      let centerZ = 0;
-      for (const i of polygon.indexes) centerZ += this.points[i].z;
-      centerZ /= polygon.indexes.length;
-      polygon.centerZ = centerZ;
-    });
+      polygon.center = new Vector3(
+        polygon.indexes.reduce((acc, idx) => acc + this.points[idx].x, 0) / polygon.indexes.length,
+        polygon.indexes.reduce((acc, idx) => acc + this.points[idx].y, 0) / polygon.indexes.length,
+        polygon.indexes.reduce((acc, idx) => acc + this.points[idx].z, 0) / polygon.indexes.length
+      );
+    })
 
     // 中心のz座標の大きい順番にソートする
     this.polygons.sort((a, b) => {
-      return b.centerZ - a.centerZ;
+      return b.center.z - a.center.z;
     });
 
     // 法線ベクトルを求める
@@ -235,6 +227,12 @@ class Cube {
     });
   }
 
+  /**
+   * Canvasに表示するために座標を補正する
+   * @param {number} x 
+   * @param {number} y 
+   * @param {number} z 
+   */
   adjust(x, y, z) {
     const cameraZ = 1000;
     const screenZ = 1000;
