@@ -198,7 +198,31 @@ class Cube {
       p2.print();
       const normalVector = p1.sub(p0).cross(p2.sub(p1)).normalize().mul(100);
       normalVector.print();
+
+      const center = new Vector3(
+        polygon.indexes.reduce((acc, idx) => acc + this.points[idx].x, 0) / polygon.indexes.length,
+        polygon.indexes.reduce((acc, idx) => acc + this.points[idx].y, 0) / polygon.indexes.length,
+        polygon.indexes.reduce((acc, idx) => acc + this.points[idx].z, 0) / polygon.indexes.length
+      );
+      const endPoint = center.add(normalVector);
+      // 法線ベクトルを描画する
+      const [x1, y1] = this.adjust(center.x, center.y, center.z);
+      const [x2, y2] = this.adjust(endPoint.x, endPoint.y, endPoint.z);
+      this.context.beginPath();
+      this.context.moveTo(x1, y1);
+      this.context.lineTo(x2, y2);
+      this.context.strokeStyle = 'orange';
+      this.context.stroke();
     });
+  }
+
+  adjust(x, y, z) {
+    const cameraZ = 1000;
+    const screenZ = 1000;
+    return [
+      x / (z + cameraZ) * screenZ + this.context.canvas.width / 2,
+      -y / (z + cameraZ) * screenZ + this.context.canvas.height / 2
+    ];
   }
 
   /**
