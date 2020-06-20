@@ -99,7 +99,7 @@ class Cube {
     const cameraZ = 1000;
     const screenZ = 1000;
 
-    this.context.fillStyle = 'white';
+    this.context.fillStyle = 'gray';
     for (const point of this.points) {
       const x = point.x / (point.z + cameraZ) * screenZ + this.context.canvas.width / 2;
       const y = -point.y / (point.z + cameraZ) * screenZ + this.context.canvas.height / 2;
@@ -115,6 +115,10 @@ class Cube {
     const cameraZ = 1000;
     const screenZ = 1000;
 
+    // 面の描画の前処理
+    this.prepare();
+    for (const polygon of this.polygons) console.log(polygon.centerZ);
+
     for (const polygon of this.polygons) {
       this.context.beginPath();
       let first = true;
@@ -127,9 +131,29 @@ class Cube {
         else this.context.lineTo(x, y);
       }
       this.context.closePath();
-      this.context.strokeStyle = 'white';
+      this.context.strokeStyle = 'black';
       this.context.stroke();
+      this.context.fillStyle = 'white';
+      this.context.fill();
     }
+  }
+
+  /**
+   * 面の描画の準備をする
+   */
+  prepare() {
+    // 中心のz座標を計算する
+    this.polygons.forEach((polygon) => {
+      let centerZ = 0;
+      for (const i of polygon.indexes) centerZ += this.points[i].z;
+      centerZ /= polygon.indexes.length;
+      polygon.centerZ = centerZ;
+    });
+
+    // 中心のz座標の大きい順番にソートする
+    this.polygons.sort((a, b) => {
+      return b.centerZ - a.centerZ;
+    });
   }
 
   /**

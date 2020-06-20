@@ -5,9 +5,8 @@
   let canvas = null;
   let context = null;
 
-  // 図形の情報
+  // 描画する立方体
   let cube = null;
-
 
   window.addEventListener('load', () => {
     initialize();
@@ -20,24 +19,25 @@
     canvas.height = CANVAS_HEIGHT;
 
     cube = new Cube(context);
+
     // 立体対角線がy軸に並行になるように回転
     cube.rotateY(45 * Math.PI / 180);
     cube.rotateX(Math.acos(1 / Math.sqrt(3)));
+
     render();
   }
 
   function render() {
     context.fillStyle = 'black';
     context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    // 点の描画
-    cube.drawPoints();
 
-    // 面(辺)の描画
+    // 描画処理
+    cube.drawPoints();
     cube.drawPolygons();
 
     // 回転処理
     cube.rotateY(1 * Math.PI / 180);
 
-    requestAnimationFrame(render);
+    // requestAnimationFrame(render);
   }
 })();
