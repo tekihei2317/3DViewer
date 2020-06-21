@@ -104,7 +104,7 @@ class Polygon {
   /**
    * 面を描画する
    * @param {CanvasRenderingContext2D} - 描画用のコンテキスト
-   * @param {Array<Vector3>} points - 点の集合
+   * @param {Array<Vector3>} points - 面が属する図形の点の集合
    */
   draw(context, points) {
     context.beginPath();
@@ -122,6 +122,18 @@ class Polygon {
     context.stroke();
     context.fillStyle = this.color;
     context.fill();
+  }
+
+  /**
+   * 面の情報(中心の座標、法線ベクトル)を再計算する
+   * @param {Array<Vector3>} points - 面が属する図形の点の集合
+   */
+  update(points) {
+    this.center = new Vector3(
+      this.indexes.reduce((acc, idx) => acc + points[idx].x, 0) / this.indexes.length,
+      this.indexes.reduce((acc, idx) => acc + points[idx].y, 0) / this.indexes.length,
+      this.indexes.reduce((acc, idx) => acc + points[idx].z, 0) / this.indexes.length
+    );
   }
 }
 
@@ -173,30 +185,17 @@ class Cube {
    */
   drawPolygons() {
     // 面の描画の前処理
-    this.prepare();
+    // this.prepare();
+    for (const polygon of this.polygons) {
+      polygon.update(this.points);
+    }
+
+    // z座標の大きい順にソートする
+    this.polygons.sort((a, b) => {
+      return b.center.z - a.center.z;
+    });
 
     // 面の描画処理
-    /*
-    for (const polygon of this.polygons) {
-      this.context.beginPath();
-      let first = true;
-      for (const index of polygon.indexes) {
-        const point = this.points[index];
-        const [x, y] = this.adjust(point.x, point.y, point.z);
-
-        if (first) this.context.moveTo(x, y), first = false;
-        else this.context.lineTo(x, y);
-      }
-      // 辺の描画
-      this.context.closePath();
-      this.context.strokeStyle = 'black';
-      this.context.stroke();
-      // 面の描画
-      this.context.fillStyle = polygon.color;
-      this.context.fill();
-    }
-    */
-
     for (const polygon of this.polygons) {
       polygon.draw(this.context, this.points);
     }
@@ -206,20 +205,6 @@ class Cube {
    * 面の描画の準備をする
    */
   prepare() {
-    // 中心座標を計算する
-    this.polygons.forEach((polygon) => {
-      polygon.center = new Vector3(
-        polygon.indexes.reduce((acc, idx) => acc + this.points[idx].x, 0) / polygon.indexes.length,
-        polygon.indexes.reduce((acc, idx) => acc + this.points[idx].y, 0) / polygon.indexes.length,
-        polygon.indexes.reduce((acc, idx) => acc + this.points[idx].z, 0) / polygon.indexes.length
-      );
-    })
-
-    // 中心のz座標の大きい順番にソートする
-    this.polygons.sort((a, b) => {
-      return b.center.z - a.center.z;
-    });
-
     // 法線ベクトルと面の色を求める
     this.polygons.forEach((polygon) => {
       const p0 = this.points[polygon.indexes[0]];
@@ -275,6 +260,7 @@ class Cube {
 
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 600;
+
 function adjust(x, y, z) {
   const cameraZ = 1000;
   const screenZ = 1000;
