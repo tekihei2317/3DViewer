@@ -129,11 +129,32 @@ class Polygon {
    * @param {Array<Vector3>} points - 面が属する図形の点の集合
    */
   update(points) {
+    // 中心の座標を再計算する
     this.center = new Vector3(
       this.indexes.reduce((acc, idx) => acc + points[idx].x, 0) / this.indexes.length,
       this.indexes.reduce((acc, idx) => acc + points[idx].y, 0) / this.indexes.length,
       this.indexes.reduce((acc, idx) => acc + points[idx].z, 0) / this.indexes.length
     );
+
+    // 法線ベクトルを再計算する
+    const p0 = points[this.indexes[0]];
+    const p1 = points[this.indexes[1]];
+    const p2 = points[this.indexes[2]];
+    this.normalVector = p1.sub(p0).cross(p2.sub(p1)).normalize();
+
+    // 色を再計算する
+    const light = new Vector3(1, -1, 1).normalize();
+    const cos = this.normalVector.dot(light);
+    this.color = this.calcColor(cos);
+  }
+
+  /**
+   * 面の明るさを計算する
+   * @param {number} cos - 光源と法線ベクトルの成す角の余弦
+   */
+  calcColor(cos) {
+    const b = 120 + 120 * (-1) * cos;
+    return `rgba(${b}, ${b}, ${b})`;
   }
 }
 
@@ -164,9 +185,6 @@ class Cube {
       new Polygon([3, 7, 4, 0]),
       new Polygon([4, 7, 6, 5])
     ];
-
-    // 光源の向きを表す単位ベクトル
-    this.light = new Vector3(1, -1, 1).normalize();
   }
 
   /**
@@ -184,8 +202,7 @@ class Cube {
    * 面を描画する
    */
   drawPolygons() {
-    // 面の描画の前処理
-    // this.prepare();
+    // 面の情報を更新する
     for (const polygon of this.polygons) {
       polygon.update(this.points);
     }
@@ -195,27 +212,10 @@ class Cube {
       return b.center.z - a.center.z;
     });
 
-    // 面の描画処理
+    // 描画処理
     for (const polygon of this.polygons) {
       polygon.draw(this.context, this.points);
     }
-  }
-
-  /**
-   * 面の描画の準備をする
-   */
-  prepare() {
-    // 法線ベクトルと面の色を求める
-    this.polygons.forEach((polygon) => {
-      const p0 = this.points[polygon.indexes[0]];
-      const p1 = this.points[polygon.indexes[1]];
-      const p2 = this.points[polygon.indexes[2]];
-
-      const normalVector = p1.sub(p0).cross(p2.sub(p1)).normalize();
-      const cos = normalVector.dot(this.light);
-      const color = this.calcColor(cos);
-      polygon.color = color;
-    });
   }
 
   /**
@@ -231,15 +231,6 @@ class Cube {
       x / (z + cameraZ) * screenZ + this.context.canvas.width / 2,
       -y / (z + cameraZ) * screenZ + this.context.canvas.height / 2
     ];
-  }
-
-  /**
-   * 面の明るさを計算する
-   * @param {number} cos - 光源と法線ベクトルの成す角の余弦
-   */
-  calcColor(cos) {
-    const b = 120 + 120 * (-1) * cos;
-    return `rgba(${b}, ${b}, ${b})`;
   }
 
   /**
