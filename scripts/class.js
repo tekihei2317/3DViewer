@@ -104,7 +104,7 @@ class Polygon {
   /**
    * 面を描画する
    * @param {CanvasRenderingContext2D} - 描画用のコンテキスト
-   * @param {Array<Vector3>} points - 面が属する図形の点の集合
+   * @param {Array<Vector3>} points - 元の図形の点の集合
    */
   draw(context, points) {
     context.beginPath();
@@ -126,7 +126,7 @@ class Polygon {
 
   /**
    * 面の情報(中心の座標、法線ベクトル)を再計算する
-   * @param {Array<Vector3>} points - 面が属する図形の点の集合
+   * @param {Array<Vector3>} points - 元の図形の点の集合
    */
   update(points) {
     // 中心の座標を再計算する
@@ -193,7 +193,7 @@ class Cube {
   drawPoints() {
     this.context.fillStyle = 'gray';
     for (const point of this.points) {
-      const [x, y] = this.adjust(point.x, point.y, point.z);
+      const [x, y] = adjust(point.x, point.y, point.z);
       this.context.fillRect(x - 3, y - 3, 6, 6);
     }
   }
@@ -203,34 +203,11 @@ class Cube {
    */
   drawPolygons() {
     // 面の情報を更新する
-    for (const polygon of this.polygons) {
-      polygon.update(this.points);
-    }
-
+    for (const polygon of this.polygons) polygon.update(this.points);
     // z座標の大きい順にソートする
-    this.polygons.sort((a, b) => {
-      return b.center.z - a.center.z;
-    });
-
+    this.polygons.sort((a, b) => b.center.z - a.center.z);
     // 描画処理
-    for (const polygon of this.polygons) {
-      polygon.draw(this.context, this.points);
-    }
-  }
-
-  /**
-   * Canvasに表示するために座標を補正する
-   * @param {number} x 
-   * @param {number} y 
-   * @param {number} z 
-   */
-  adjust(x, y, z) {
-    const cameraZ = 1000;
-    const screenZ = 1000;
-    return [
-      x / (z + cameraZ) * screenZ + this.context.canvas.width / 2,
-      -y / (z + cameraZ) * screenZ + this.context.canvas.height / 2
-    ];
+    for (const polygon of this.polygons) polygon.draw(this.context, this.points);
   }
 
   /**

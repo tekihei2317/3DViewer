@@ -38,6 +38,6 @@
     // 回転処理
     cube.rotateY(1 * Math.PI / 180);
 
-    // requestAnimationFrame(render);
+    requestAnimationFrame(render);
   }
 })();
